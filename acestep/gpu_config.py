@@ -110,9 +110,25 @@ GPU_TIER_CONFIGS = {
 }
 
 
+def is_rocm_available() -> bool:
+    """
+    Check if PyTorch was compiled with ROCm (AMD GPU) support.
+    
+    Returns:
+        True if ROCm is available, False otherwise
+    """
+    try:
+        import torch
+        # ROCm uses CUDA API but has torch.version.hip
+        return torch.cuda.is_available() and hasattr(torch.version, 'hip') and torch.version.hip is not None
+    except Exception:
+        return False
+
+
 def get_gpu_memory_gb() -> float:
     """
     Get GPU memory in GB. Returns 0 if no GPU is available.
+    Supports both NVIDIA (CUDA) and AMD (ROCm) GPUs.
     
     Debug Mode:
         Set environment variable MAX_CUDA_VRAM to override the detected GPU memory.
@@ -134,8 +150,14 @@ def get_gpu_memory_gb() -> float:
         import torch
         if torch.cuda.is_available():
             # Get total memory of the first GPU in GB
+            # This works for both CUDA (NVIDIA) and ROCm (AMD) as ROCm uses CUDA API
             total_memory = torch.cuda.get_device_properties(0).total_memory
             memory_gb = total_memory / (1024**3)  # Convert bytes to GB
+            
+            # Log GPU type for user awareness
+            if is_rocm_available():
+                logger.info(f"Detected AMD GPU with ROCm (HIP version: {torch.version.hip})")
+            
             return memory_gb
         else:
             return 0

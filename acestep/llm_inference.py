@@ -20,7 +20,7 @@ from transformers.generation.logits_process import (
 )
 from acestep.constrained_logits_processor import MetadataConstrainedLogitsProcessor
 from acestep.constants import DEFAULT_LM_INSTRUCTION, DEFAULT_LM_UNDERSTAND_INSTRUCTION, DEFAULT_LM_INSPIRED_INSTRUCTION, DEFAULT_LM_REWRITE_INSTRUCTION
-from acestep.gpu_config import get_lm_gpu_memory_ratio, get_gpu_memory_gb, get_lm_model_size, get_global_gpu_config
+from acestep.gpu_config import get_lm_gpu_memory_ratio, get_gpu_memory_gb, get_lm_model_size, get_global_gpu_config, is_rocm_available
 
 
 class LLMHandler:
@@ -336,6 +336,13 @@ class LLMHandler:
                 device = "cuda" if torch.cuda.is_available() else "cpu"
 
             self.device = device
+            
+            # Log GPU backend type for user awareness
+            if device == "cuda" and is_rocm_available():
+                logger.info("🎮 AMD GPU detected with ROCm support (LM)")
+            elif device == "cuda":
+                logger.info("🎮 NVIDIA GPU detected with CUDA support (LM)")
+            
             self.offload_to_cpu = offload_to_cpu
             # Set dtype based on device: bfloat16 for cuda, float32 for cpu
             if dtype is None:
