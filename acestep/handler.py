@@ -43,7 +43,7 @@ from acestep.constants import (
     DEFAULT_DIT_INSTRUCTION,
 )
 from acestep.dit_alignment_score import MusicStampsAligner, MusicLyricScorer
-from acestep.gpu_config import get_gpu_memory_gb
+from acestep.gpu_config import get_gpu_memory_gb, is_rocm_available
 
 
 warnings.filterwarnings("ignore")
@@ -345,6 +345,13 @@ class AceStepHandler:
             status_msg = ""
             
             self.device = device
+            
+            # Log GPU backend type for user awareness
+            if device == "cuda" and is_rocm_available():
+                logger.info("🎮 AMD GPU detected with ROCm support")
+            elif device == "cuda":
+                logger.info("🎮 NVIDIA GPU detected with CUDA support")
+            
             self.offload_to_cpu = offload_to_cpu
             self.offload_dit_to_cpu = offload_dit_to_cpu
             # Set dtype based on device: bfloat16 for cuda, float32 for cpu

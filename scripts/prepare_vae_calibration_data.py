@@ -55,7 +55,7 @@ def main():
         print(f"Failed to load VAE: {e}")
         return
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() else "cpu"  # Works for both NVIDIA (CUDA) and AMD (ROCm)
     # Check for XPU
     if hasattr(torch, "xpu") and torch.xpu.is_available():
         device = "xpu"

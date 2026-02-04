@@ -73,7 +73,21 @@ Star ACE-Step on GitHub and be instantly notified of new releases
 
 ## 📦 Installation
 
-> **Requirements:** Python 3.11, CUDA GPU recommended (works on CPU/MPS but slower)
+> **Requirements:** Python 3.11, GPU recommended (NVIDIA CUDA, AMD ROCm, or Intel Arc). Works on CPU/MPS but slower.
+
+### GPU Support
+
+ACE-Step 1.5 supports multiple GPU backends:
+- **NVIDIA GPUs**: CUDA 12.8+ (default installation)
+- **AMD GPUs**: ROCm 5.7+ (install PyTorch with ROCm)
+- **Intel Arc GPUs**: Intel Extension for PyTorch
+- **Apple Silicon**: MPS (Metal Performance Shaders)
+
+For AMD GPUs with ROCm, install PyTorch with ROCm support before running `uv sync`:
+```bash
+# For AMD GPUs with ROCm
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.2
+```
 
 ### 1. Install uv (Package Manager)
 

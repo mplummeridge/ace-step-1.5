@@ -2,6 +2,32 @@
 
 ACE-Step 1.5 automatically adapts to your GPU's available VRAM, adjusting generation limits and LM model availability accordingly. The system detects GPU memory at startup and configures optimal settings.
 
+## Supported GPU Backends
+
+ACE-Step 1.5 supports multiple GPU backends:
+
+- **NVIDIA GPUs (CUDA)**: Full support with CUDA 12.8+
+- **AMD GPUs (ROCm)**: Full support with ROCm 5.7+
+- **Intel Arc GPUs (XPU)**: Support via Intel Extension for PyTorch
+- **Apple Silicon (MPS)**: Basic support on macOS
+
+All GPU backends share the same tier configuration system based on available VRAM.
+
+### AMD GPU Setup (ROCm)
+
+For AMD GPUs, you need to install PyTorch with ROCm support:
+
+```bash
+# Install PyTorch with ROCm 6.2 support
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.2
+
+# Then install ACE-Step
+cd ACE-Step-1.5
+uv sync
+```
+
+ACE-Step will automatically detect ROCm and configure the system accordingly. ROCm GPUs use the same VRAM-based tier system as NVIDIA GPUs.
+
 ## GPU Tier Configuration
 
 | VRAM | Tier | LM Mode | Max Duration | Max Batch Size | LM Memory Allocation |
@@ -31,6 +57,23 @@ ACE-Step 1.5 automatically adapts to your GPU's available VRAM, adjusting genera
 1. **Low VRAM (<8GB)**: Use DiT-only mode without LM initialization for maximum duration
 2. **Medium VRAM (8-16GB)**: Use the 0.6B LM model for best balance of quality and memory
 3. **High VRAM (>16GB)**: Enable larger LM models (1.7B/4B) for better audio understanding and generation quality
+
+## Tested Hardware
+
+### NVIDIA GPUs
+- RTX 3090 (24GB) - Tier Unlimited
+- RTX 3080 (10GB/12GB) - Tier 4/5
+- RTX 4090 (24GB) - Tier Unlimited
+- A100 (40GB/80GB) - Tier Unlimited
+
+### AMD GPUs (ROCm)
+AMD GPUs with ROCm 5.7+ are supported. The tier system works the same as NVIDIA GPUs based on VRAM:
+- RX 7900 XTX (24GB) - Tier Unlimited
+- RX 7900 XT (20GB) - Tier 6
+- RX 6800 XT (16GB) - Tier 6
+- RX 6700 XT (12GB) - Tier 5
+
+> **Note for AMD GPU Users**: Make sure you have ROCm 5.7 or later installed. ACE-Step will automatically detect and use ROCm when available.
 
 ## Debug Mode: Simulating Different GPU Configurations
 

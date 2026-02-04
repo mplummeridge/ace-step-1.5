@@ -2,6 +2,32 @@
 
 ACE-Step 1.5 会自动适配您的 GPU 显存大小，相应调整生成时长限制和可用的 LM 模型。系统在启动时检测 GPU 显存并自动配置最佳设置。
 
+## 支持的 GPU 后端
+
+ACE-Step 1.5 支持多种 GPU 后端：
+
+- **NVIDIA GPU (CUDA)**: 完全支持 CUDA 12.8+
+- **AMD GPU (ROCm)**: 完全支持 ROCm 5.7+
+- **Intel Arc GPU (XPU)**: 通过 Intel Extension for PyTorch 支持
+- **Apple Silicon (MPS)**: 在 macOS 上基本支持
+
+所有 GPU 后端共享基于可用显存的分级配置系统。
+
+### AMD GPU 设置 (ROCm)
+
+对于 AMD GPU，您需要安装支持 ROCm 的 PyTorch：
+
+```bash
+# 安装支持 ROCm 6.2 的 PyTorch
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.2
+
+# 然后安装 ACE-Step
+cd ACE-Step-1.5
+uv sync
+```
+
+ACE-Step 将自动检测 ROCm 并相应配置系统。ROCm GPU 使用与 NVIDIA GPU 相同的基于显存的分级系统。
+
 ## GPU 分级配置
 
 | 显存 | 等级 | LM 模式 | 最大时长 | 最大批次 | LM 显存分配 |
@@ -31,6 +57,23 @@ ACE-Step 1.5 会自动适配您的 GPU 显存大小，相应调整生成时长�
 1. **低显存 (<8GB)**: 使用纯 DiT 模式，不初始化 LM，以获得最大时长
 2. **中等显存 (8-16GB)**: 使用 0.6B LM 模型，在质量和显存之间取得最佳平衡
 3. **高显存 (>16GB)**: 启用更大的 LM 模型 (1.7B/4B) 以获得更好的音频理解和生成质量
+
+## 已测试硬件
+
+### NVIDIA GPU
+- RTX 3090 (24GB) - Tier 无限制
+- RTX 3080 (10GB/12GB) - Tier 4/5
+- RTX 4090 (24GB) - Tier 无限制
+- A100 (40GB/80GB) - Tier 无限制
+
+### AMD GPU (ROCm)
+支持 ROCm 5.7+ 的 AMD GPU。分级系统与 NVIDIA GPU 相同，基于显存：
+- RX 7900 XTX (24GB) - Tier 无限制
+- RX 7900 XT (20GB) - Tier 6
+- RX 6800 XT (16GB) - Tier 6
+- RX 6700 XT (12GB) - Tier 5
+
+> **AMD GPU 用户注意**: 请确保安装 ROCm 5.7 或更高版本。ACE-Step 会在可用时自动检测并使用 ROCm。
 
 ## 调试模式：模拟不同的 GPU 配置
 
