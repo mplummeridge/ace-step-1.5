@@ -2,6 +2,32 @@
 
 ACE-Step 1.5 は GPU の VRAM に自動的に適応し、生成時間の制限や使用可能な LM モデルを調整します。システムは起動時に GPU メモリを検出し、最適な設定を自動構成します。
 
+## サポートされる GPU バックエンド
+
+ACE-Step 1.5 は複数の GPU バックエンドをサポートしています：
+
+- **NVIDIA GPU (CUDA)**: CUDA 12.8+ で完全サポート
+- **AMD GPU (ROCm)**: ROCm 5.7+ で完全サポート
+- **Intel Arc GPU (XPU)**: Intel Extension for PyTorch によるサポート
+- **Apple Silicon (MPS)**: macOS で基本サポート
+
+すべての GPU バックエンドは、利用可能な VRAM に基づく同じティア構成システムを共有します。
+
+### AMD GPU セットアップ (ROCm)
+
+AMD GPU の場合、ROCm サポート付きの PyTorch をインストールする必要があります：
+
+```bash
+# ROCm 6.2 サポート付き PyTorch をインストール
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.2
+
+# 次に ACE-Step をインストール
+cd ACE-Step-1.5
+uv sync
+```
+
+ACE-Step は ROCm を自動的に検出し、システムを適切に構成します。ROCm GPU は NVIDIA GPU と同じ VRAM ベースのティアシステムを使用します。
+
 ## GPU ティア構成
 
 | VRAM | ティア | LM モード | 最大時間 | 最大バッチ | LM メモリ割当 |
@@ -31,6 +57,23 @@ ACE-Step 1.5 は GPU の VRAM に自動的に適応し、生成時間の制限�
 1. **低 VRAM (<8GB)**: 最大時間を得るため、LM 初期化なしの DiT のみモードを使用
 2. **中 VRAM (8-16GB)**: 品質とメモリのバランスが最適な 0.6B LM モデルを使用
 3. **高 VRAM (>16GB)**: より良いオーディオ理解と生成品質のため、より大きな LM モデル (1.7B/4B) を有効化
+
+## テスト済みハードウェア
+
+### NVIDIA GPU
+- RTX 3090 (24GB) - Tier 無制限
+- RTX 3080 (10GB/12GB) - Tier 4/5
+- RTX 4090 (24GB) - Tier 無制限
+- A100 (40GB/80GB) - Tier 無制限
+
+### AMD GPU (ROCm)
+ROCm 5.7+ を搭載した AMD GPU がサポートされています。ティアシステムは VRAM に基づいて NVIDIA GPU と同じです：
+- RX 7900 XTX (24GB) - Tier 無制限
+- RX 7900 XT (20GB) - Tier 6
+- RX 6800 XT (16GB) - Tier 6
+- RX 6700 XT (12GB) - Tier 5
+
+> **AMD GPU ユーザーへの注意**: ROCm 5.7 以降がインストールされていることを確認してください。ACE-Step は利用可能な場合、ROCm を自動的に検出して使用します。
 
 ## デバッグモード：異なる GPU 構成のシミュレーション
 
